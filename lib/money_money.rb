@@ -17,7 +17,11 @@ class Money
   end
 
   def self.conversion_rates(base_currency, rates)
-    @@conversion_table[base_currency] = rates if rates.is_a?(Hash)
+    if rates.is_a?(Hash)
+      @@conversion_table[base_currency] = rates
+    else
+      raise TypeError, 'You must pass a hash as a set of rates for specified currency.'
+    end
   end
 
   def convert_to(dest_currency)
