@@ -24,8 +24,7 @@ class Money
       conv_rate = self.get_rate(dest_currency)
       Money.new(self.amount * conv_rate, dest_currency)
     else
-      p 'Currently there is no value for requested currency'
-      raise StandardError
+      raise 'Currently there is no value for requested currency'
     end
   end
 
