@@ -1,0 +1,3 @@
+module MoneyMoney::ConversionTable
+
+end
