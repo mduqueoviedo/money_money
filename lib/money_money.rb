@@ -11,6 +11,7 @@ class Money
   include MoneyMoney::Operations
 
   def initialize(amount, currency)
+    puts 'Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.'
     @amount = amount
     @currency = currency
   end
