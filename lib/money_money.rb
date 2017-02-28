@@ -20,8 +20,8 @@ class Money
   end
 
   def convert_to(dest_currency)
-    if self.has_rate?(dest_currency)
-      conv_rate = self.get_rate(dest_currency)
+    if self.class.has_rate?(self.currency, dest_currency)
+      conv_rate = self.class.get_rate(self.currency, dest_currency)
       Money.new(self.amount * conv_rate, dest_currency)
     else
       raise 'Currently there is no value for requested currency'
@@ -32,13 +32,20 @@ class Money
     "#{"%.2f" % amount} #{currency}"
   end
 
-  def has_rate?(dest_rate)
-    @@conversion_table[self.currency].nil? || @@conversion_table[self.currency][dest_rate].nil? ? false : true
+  def self.has_rate?(orig_currency, dest_currency)
+    if orig_currency == dest_currency
+      true
+    else
+      @@conversion_table[orig_currency].nil? || @@conversion_table[orig_currency][dest_currency].nil? ? false : true
+    end
   end
 
-  def get_rate(dest_rate)
-    @@conversion_table[self.currency][dest_rate]
+  def self.get_rate(orig_currency, dest_currency)
+    if orig_currency == dest_currency
+      1
+    else
+      @@conversion_table[orig_currency][dest_currency]
+    end
   end
 
 end
-
