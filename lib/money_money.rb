@@ -11,29 +11,25 @@ class Money
   include MoneyMoney::Operations
 
   def initialize(amount, currency)
-    unless self.class.defined_currency?(currency)
-      puts 'Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.'
-    end
+    puts 'Specified currency is not defined, you will not ' \
+         'be able to perform conversion operations unless ' \
+         'you define rates with \'conversion_rates\' command.' unless self.class.defined_currency?(currency)
 
     @amount = amount
     @currency = currency
   end
 
   def self.conversion_rates(base_currency, rates)
-    if rates.is_a?(Hash)
-      @@conversion_table[base_currency] = rates
-    else
-      raise TypeError, 'You must pass a hash as a set of rates for specified currency.'
-    end
+    raise TypeError, 'You must pass a hash as a set of rates for specified currency.' unless rates.is_a?(Hash)
+
+    @@conversion_table[base_currency] ? false : @@conversion_table[base_currency] = rates
   end
 
   def convert_to(dest_currency)
-    if self.class.has_rate?(self.currency, dest_currency)
-      conv_rate = self.class.get_rate(self.currency, dest_currency)
-      Money.new(self.amount * conv_rate, dest_currency)
-    else
-      raise 'Currently there is no value for requested currency'
-    end
+    raise 'Currently there is no value for requested currency' unless self.class.has_rate?(self.currency, dest_currency)
+
+    conv_rate = self.class.get_rate(self.currency, dest_currency)
+    Money.new(self.amount * conv_rate, dest_currency)
   end
 
   def inspect
