@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["mduqueoviedo@gmail.com"]
 
   spec.summary       = %q{Simple currency converter.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/mduqueoviedo/money_money"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'

@@ -11,7 +11,10 @@ class Money
   include MoneyMoney::Operations
 
   def initialize(amount, currency)
-    puts 'Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.'
+    unless self.class.defined_currency?(currency)
+      puts 'Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.'
+    end
+
     @amount = amount
     @currency = currency
   end
@@ -38,19 +41,39 @@ class Money
   end
 
   def self.has_rate?(orig_currency, dest_currency)
+    conv_table = @@conversion_table # Reduce length a bit
+
     if orig_currency == dest_currency
       true
+    elsif (conv_table[orig_currency] && conv_table[orig_currency][dest_currency]) ||
+          (conv_table [dest_currency] && conv_table[dest_currency][orig_currency])
+      true # One of them is a base currency
+    elsif conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.count > 0
+      true # None of them are base but are defined on the same base
     else
-      @@conversion_table[orig_currency].nil? || @@conversion_table[orig_currency][dest_currency].nil? ? false : true
+      false
     end
   end
 
   def self.get_rate(orig_currency, dest_currency)
+    conv_table = @@conversion_table
     if orig_currency == dest_currency
       1
+    elsif conv_table[orig_currency] && conv_table[orig_currency][dest_currency]
+      conv_table[orig_currency][dest_currency]
+    elsif conv_table [dest_currency] && conv_table[dest_currency][orig_currency]
+      1 / conv_table[dest_currency][orig_currency]
+    elsif conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.count > 0
+      orig_rate = conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.first[1][orig_currency]
+      dest_rate = conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.first[1][dest_currency]
+      (1 / orig_rate) * dest_rate
     else
-      @@conversion_table[orig_currency][dest_currency]
+      raise 'Unexpected conversion error.'
     end
+  end
+
+  def self.defined_currency?(currency)
+    @@conversion_table.has_key?(currency) || @@conversion_table.find{ |_, hash| hash[currency] }
   end
 
 end

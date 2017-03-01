@@ -6,6 +6,10 @@ describe MoneyMoney do
   end
 
   describe 'new' do
+    before do
+      Money.conversion_rates('USD', {'CLP' => 123})
+    end
+
     it 'instantiates class' do
       m = Money.new(10, 'EUR')
       expect(m).to be_a(Money)
@@ -18,7 +22,11 @@ describe MoneyMoney do
     end
 
     it 'does not show warning when object currency is defined' do
-      expect { Money.new(10, 'EUR') }
+      expect { Money.new(10, 'USD') }
+        .not_to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
+        .to_stdout
+
+      expect { Money.new(10, 'CLP') }
         .not_to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
         .to_stdout
     end
@@ -162,7 +170,7 @@ describe MoneyMoney do
         n = Money.new(20, 'USD')
         res = m + n
 
-        expect(res.amount).to eq(28.18)
+        expect(res.amount.round(2)).to eq(28.18)
         expect(res.currency).to eq('EUR')
         expect(res.inspect).to eq('28.18 EUR')
       end
@@ -211,7 +219,7 @@ describe MoneyMoney do
         n = Money.new(20, 'USD')
         res = m - n
 
-        expect(res.amount).to eq(31.82)
+        expect(res.amount.round(2)).to eq(31.82)
         expect(res.currency).to eq('EUR')
         expect(res.inspect).to eq('31.82 EUR')
       end
@@ -352,7 +360,7 @@ describe MoneyMoney do
 
       context 'rates not defined' do
         it 'throws error when performing operation' do
-          expect{ ten_euro > Money.new(5, 'MXP') }.to raise_error('Currently there is no value for requested currency')
+          expect{ thirty_euro > Money.new(5, 'MXP') }.to raise_error('Currently there is no value for requested currency')
         end
       end
     end
@@ -395,7 +403,7 @@ describe MoneyMoney do
 
       context 'rates not defined' do
         it 'throws error when performing operation' do
-          expect{ ten_euro < Money.new(5, 'MXP') }.to raise_error('Currently there is no value for requested currency')
+          expect{ thirty_euro < Money.new(5, 'MXP') }.to raise_error('Currently there is no value for requested currency')
         end
       end
     end
