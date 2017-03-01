@@ -11,10 +11,6 @@ class Money
   include MoneyMoney::Operations
 
   def initialize(amount, currency)
-    puts 'Specified currency is not defined, you will not ' \
-         'be able to perform conversion operations unless ' \
-         'you define rates with \'conversion_rates\' command.' unless self.class.defined_currency?(currency)
-
     @amount = amount
     @currency = currency
   end
@@ -64,7 +60,7 @@ class Money
       dest_rate = conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.first[1][dest_currency]
       (1 / orig_rate) * dest_rate
     else
-      raise 'Unexpected conversion error.'
+      raise 'Unexpected conversion error. Are your currency rates well defined?'
     end
   end
 

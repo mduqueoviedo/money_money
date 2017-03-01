@@ -14,22 +14,6 @@ describe MoneyMoney do
       m = Money.new(10, 'EUR')
       expect(m).to be_a(Money)
     end
-
-    it 'shows warning when object has no rate definition' do
-      expect { Money.new(10, 'EUR') }
-        .to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
-        .to_stdout
-    end
-
-    it 'does not show warning when object currency is defined' do
-      expect { Money.new(10, 'USD') }
-        .not_to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
-        .to_stdout
-
-      expect { Money.new(10, 'CLP') }
-        .not_to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
-        .to_stdout
-    end
   end
 
   describe 'amount' do
@@ -417,21 +401,18 @@ describe MoneyMoney do
 
   describe 'self.clean_conversion_rates' do
     it 'removes existing conversion rates' do
-      expect { Money.new(10, 'EUR') }
-        .to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
-        .to_stdout
+      expect { Money.new(10, 'EUR') + Money.new(10, 'USD') }
+        .to raise_error('Currently there is no value for requested currency')
 
       Money.conversion_rates('EUR', {'USD' => 1.1})
 
-      expect { Money.new(10, 'EUR') }
-        .not_to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
-        .to_stdout
+      expect { Money.new(10, 'EUR') + Money.new(10, 'USD') }
+        .not_to raise_error('Currently there is no value for requested currency')
 
       Money.clean_conversion_rates
 
-      expect { Money.new(10, 'EUR') }
-        .to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
-        .to_stdout
+      expect { Money.new(10, 'EUR') + Money.new(10, 'USD') }
+        .to raise_error('Currently there is no value for requested currency')
     end
   end
 end
