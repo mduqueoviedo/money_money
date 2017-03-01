@@ -3,6 +3,8 @@
 MoneyMoney allows to add a Money class to your application, define currency equivalences and operate and convert them. 
 It might have namespace conflicts with other money gems.
 
+**Disclaimer**: This is an experimental gem for the sake of self-improvement and honing knowledge and development skills. Check www.rubygems.org to look for tested and certified money conversion gems.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -31,7 +33,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/money_money.
+Bug reports and pull requests are welcome on GitHub at https://github.com/mduqueoviedo/money_money.
 
 
 ## License
