@@ -33,7 +33,7 @@ class Money
   end
 
   def self.has_rate?(orig_currency, dest_currency)
-    conv_table = @@conversion_table # Reduce length a bit
+    conv_table = @@conversion_table # For clearer code
 
     if orig_currency == dest_currency
       true
@@ -56,8 +56,11 @@ class Money
     elsif conv_table [dest_currency] && conv_table[dest_currency][orig_currency]
       1 / conv_table[dest_currency][orig_currency]
     elsif conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.count > 0
-      orig_rate = conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.first[1][orig_currency]
-      dest_rate = conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.first[1][dest_currency]
+      found_rates_hash = conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.first[1]
+
+      orig_rate = found_rates_hash[orig_currency]
+      dest_rate = found_rates_hash[dest_currency]
+
       (1 / orig_rate) * dest_rate
     else
       raise 'Unexpected conversion error. Are your currency rates well defined?'
