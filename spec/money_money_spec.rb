@@ -55,7 +55,7 @@ describe MoneyMoney do
       let(:five_dollars) { Money.new(5, 'USD') }
 
       before do
-        Money.conversion_rates('EUR', {'USD' => 1.1})
+        Money.conversion_rates('EUR', {'USD' => 1.1, 'CLP' => 500})
       end
 
       it 'converts currency from base to other currency' do
@@ -72,6 +72,14 @@ describe MoneyMoney do
         expect(res.amount.round(2)).to eq(4.55)
         expect(res.currency).to eq('EUR')
         expect(res.inspect).to eq('4.55 EUR')
+      end
+
+      it 'converts money between defined currencies' do
+        res = five_dollars.convert_to('CLP')
+
+        expect(res.amount.round(2)).to eq(2272.73)
+        expect(res.currency).to eq('CLP')
+        expect(res.inspect).to eq('2272.73 CLP')
       end
 
       it 'returns money object' do
@@ -150,7 +158,13 @@ describe MoneyMoney do
       end
 
       it 'adds money objects of different currencies' do
+        m = Money.new(10, 'EUR')
+        n = Money.new(20, 'USD')
+        res = m + n
 
+        expect(res.amount).to eq(28.18)
+        expect(res.currency).to eq('EUR')
+        expect(res.inspect).to eq('28.18 EUR')
       end
     end
 
@@ -193,7 +207,13 @@ describe MoneyMoney do
       end
 
       it 'substracts money objects of different currencies' do
+        m = Money.new(50, 'EUR')
+        n = Money.new(20, 'USD')
+        res = m - n
 
+        expect(res.amount).to eq(31.82)
+        expect(res.currency).to eq('EUR')
+        expect(res.inspect).to eq('31.82 EUR')
       end
     end
 
@@ -208,44 +228,110 @@ describe MoneyMoney do
 
   describe '*' do
     it 'multiplies money object times a number' do
+      res = Money.new(10, 'EUR') * 4
 
+      expect(res.amount).to eq(40)
+      expect(res.currency).to eq('EUR')
+      expect(res.inspect).to eq('40.00 EUR')
     end
 
     it 'throws error when parameter is not a number' do
-
+      expect{ Money.new(100, 'EUR') * 'error generator' }
+        .to raise_error(TypeError, 'this operation requires a number. E.g. money * 2')
     end
 
     it 'returns money object' do
-
+      expect(Money.new(10, 'EUR') * 4).to be_a(Money)
     end
   end
 
   describe '/' do
     it 'divides money object by a number' do
+      res = Money.new(10, 'EUR') / 4
 
+      expect(res.amount).to eq(2.5)
+      expect(res.currency).to eq('EUR')
+      expect(res.inspect).to eq('2.50 EUR')
     end
 
     it 'throws error when parameter is not a number' do
-
+      expect{ Money.new(100, 'EUR') / 'error generator' }
+        .to raise_error(TypeError, 'this operation requires a number. E.g. money / 2')
     end
 
     it 'returns money object' do
-
+      expect(Money.new(10, 'EUR') / 4).to be_a(Money)
     end
   end
 
   describe '==' do
     context 'same currency' do
-      it 'compares two money objects and returns true if the amount is the same' do
+      let(:ten_dollars) { Money.new(10, 'USD') }
+      let(:a_bit_more_than_ten_dollars) { Money.new(10.001, 'USD') }
+      let(:fifteen_dollars) { Money.new(15, 'USD') }
 
+      it 'compares two money objects and returns true if the amount is the same' do
+        expect(ten_dollars == ten_dollars).to be true
       end
 
       it 'compares two money objects and returns false if the amount is not the same' do
-
+        expect(ten_dollars == fifteen_dollars).to be false
       end
 
       it 'compares two money objects and returns true if amount rounded to two decimals is the same' do
+        expect(ten_dollars == a_bit_more_than_ten_dollars).to be true
+      end
+    end
 
+    context 'different currencies' do
+      let(:ten_euro) { Money.new(10, 'EUR') }
+      let(:eleven_and_a_bit_dollars) { Money.new(11.001, 'USD') }
+      let(:eleven_dollars) { Money.new(11, 'USD') }
+      let(:fifteen_dollars) { Money.new(15, 'USD') }
+
+      context 'rates defined' do
+        before do
+          Money.conversion_rates('EUR', {'USD' => 1.1})
+        end
+
+        it 'compares two money objects and returns true if the equivalent amount is the same' do
+          expect(ten_euro == eleven_dollars).to be true
+        end
+
+        it 'compares two money objects and returns false if the equivalent amount is not the same' do
+          expect(ten_euro == fifteen_dollars).to be false
+        end
+
+        it 'compares two money objects and returns true if equivalent amount rounded to two decimals is the same' do
+          expect(ten_euro == eleven_and_a_bit_dollars).to be true
+        end
+      end
+
+      context 'rates not defined' do
+        it 'throws error when performing operation' do
+          expect{ ten_euro == Money.new(5, 'MXP') }.to raise_error('Currently there is no value for requested currency')
+        end
+      end
+    end
+
+    it 'throws error when not comparing to a money object' do
+      expect{ Money.new(5, 'PES') == 'error generator' }
+        .to raise_error(TypeError, 'the object to compare with is not a Money object. E.g. money_1 == money_2')
+    end
+  end
+
+  describe '>' do
+    let(:thirty_euro) { Money.new(30, 'EUR') }
+    let(:eleven_dollars) { Money.new(11, 'USD') }
+    let(:fifteen_dollars) { Money.new(15, 'USD') }
+
+    context 'same currencies' do
+      it 'compares two money objects and returns true if the amount of first is bigger than second' do
+        expect(fifteen_dollars > eleven_dollars).to be true
+      end
+
+      it 'compares two money objects and returns false if the amount of first is smaller than second' do
+        expect(eleven_dollars > fifteen_dollars).to be false
       end
     end
 
@@ -255,95 +341,68 @@ describe MoneyMoney do
           Money.conversion_rates('EUR', {'USD' => 1.1})
         end
 
-        it 'compares two money objects and returns true if the equivalent amount is the same' do
-
-        end
-
-        it 'compares two money objects and returns false if the equivalent amount is not the same' do
-
-        end
-
-        it 'compares two money objects and returns true if equivalent amount rounded to two decimals is the same' do
-
-        end
-      end
-
-      context 'rates not defined' do
-        it 'throws error when performing operation' do
-
-        end
-      end
-    end
-
-    it 'throws error when not comparing to a money object' do
-
-    end
-  end
-
-  describe '>' do
-    context 'same currencies' do
-      it 'compares two money objects and returns true if the amount of first is bigger than second' do
-
-      end
-      it 'compares two money objects and returns false if the amount of first is smaller than second' do
-
-      end
-    end
-
-    context 'different currencies' do
-      context 'rates defined' do
         it 'compares two money objects and returns true if the equivalent amount of first is bigger than second' do
-
+          expect(thirty_euro > eleven_dollars).to be true
         end
 
         it 'compares two money objects and returns false if the equivalent amount of first is smaller than second' do
-
+          expect(eleven_dollars > thirty_euro).to be false
         end
       end
 
       context 'rates not defined' do
         it 'throws error when performing operation' do
-
+          expect{ ten_euro > Money.new(5, 'MXP') }.to raise_error('Currently there is no value for requested currency')
         end
       end
     end
 
     it 'throws error when not comparing to a money object' do
-
+      expect{ Money.new(5, 'GBP') > 'error generator' }
+        .to raise_error(TypeError, 'the object to compare with is not a Money object. E.g. money_1 > money_2')
     end
   end
 
   describe '<' do
+    let(:thirty_euro) { Money.new(30, 'EUR') }
+    let(:eleven_dollars) { Money.new(11, 'USD') }
+    let(:fifteen_dollars) { Money.new(15, 'USD') }
+
     context 'same currencies' do
       it 'compares two money objects and returns true if the amount of first is smaller than second' do
-
+        expect(eleven_dollars < fifteen_dollars).to be true
       end
 
       it 'compares two money objects and returns false if the amount of first is bigger than second' do
-
+        expect(fifteen_dollars < eleven_dollars).to be false
       end
     end
 
     context 'different currencies' do
       context 'rates defined' do
-        it 'compares two money objects and returns true if the equivalent amount of first is smaller than second' do
+        before do
+          Money.conversion_rates('EUR', {'USD' => 1.1})
+        end
 
+        it 'compares two money objects and returns true if the equivalent amount of first is smaller than second' do
+          expect(eleven_dollars < thirty_euro).to be true
         end
 
         it 'compares two money objects and returns false if the equivalent amount of first is bigger than second' do
-
+          expect(thirty_euro < eleven_dollars).to be false
         end
       end
 
       context 'rates not defined' do
         it 'throws error when performing operation' do
-
+          expect{ ten_euro < Money.new(5, 'MXP') }.to raise_error('Currently there is no value for requested currency')
         end
       end
     end
 
     it 'throws error when not comparing to a money object' do
-
+      expect{ Money.new(5, 'DM') < 'error generator' }
+        .to raise_error(TypeError, 'the object to compare with is not a Money object. E.g. money_1 < money_2')
     end
   end
 end

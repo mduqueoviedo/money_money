@@ -25,7 +25,7 @@ module MoneyMoney::Operations
 
   def /(num)
     if num.is_a?(Numeric)
-      Money.new(self.amount / num, self.currency)
+      Money.new(self.amount.to_f / num, self.currency)
     else
       raise TypeError, 'this operation requires a number. E.g. money / 2'
     end
