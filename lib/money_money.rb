@@ -22,11 +22,7 @@ class Money
   def self.conversion_rates(base_currency, rates)
     raise TypeError, 'You must pass a hash as a set of rates for specified currency.' unless rates.is_a?(Hash)
 
-    if @@conversion_table[base_currency]
-      @@conversion_table[base_currency] = @@conversion_table[base_currency].merge(rates)
-    else
-      @@conversion_table[base_currency] = rates
-    end
+    @@conversion_table[base_currency] = @@conversion_table[base_currency] ? @@conversion_table[base_currency].merge(rates) : rates
   end
 
   def convert_to(dest_currency)
@@ -76,4 +72,7 @@ class Money
     @@conversion_table.has_key?(currency) || @@conversion_table.find{ |_, hash| hash[currency] }
   end
 
+  def self.clean_conversion_rates
+    @@conversion_table = {}
+  end
 end

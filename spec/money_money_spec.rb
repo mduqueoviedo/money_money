@@ -63,6 +63,7 @@ describe MoneyMoney do
       let(:five_dollars) { Money.new(5, 'USD') }
 
       before do
+
         Money.conversion_rates('EUR', {'USD' => 1.1, 'CLP' => 500})
       end
 
@@ -411,6 +412,26 @@ describe MoneyMoney do
     it 'throws error when not comparing to a money object' do
       expect{ Money.new(5, 'DM') < 'error generator' }
         .to raise_error(TypeError, 'the object to compare with is not a Money object. E.g. money_1 < money_2')
+    end
+  end
+
+  describe 'self.clean_conversion_rates' do
+    it 'removes existing conversion rates' do
+      expect { Money.new(10, 'EUR') }
+        .to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
+        .to_stdout
+
+      Money.conversion_rates('EUR', {'USD' => 1.1})
+
+      expect { Money.new(10, 'EUR') }
+        .not_to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
+        .to_stdout
+
+      Money.clean_conversion_rates
+
+      expect { Money.new(10, 'EUR') }
+        .to output("Specified currency is not defined, you will not be able to perform conversion operations unless you define rates with \'conversion_rates\' command.\n")
+        .to_stdout
     end
   end
 end
