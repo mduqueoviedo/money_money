@@ -6,27 +6,30 @@ describe MoneyMoney do
   end
 
   describe 'new' do
-    before do
-      Money.conversion_rates('USD', {'CLP' => 123})
-    end
+    let(:ten_euro) { Money.new(10, 'EUR') }
 
     it 'instantiates class' do
-      m = Money.new(10, 'EUR')
-      expect(m).to be_a(Money)
+      expect(ten_euro).to be_a(Money)
     end
   end
 
   describe 'amount' do
+    let(:ten_euro) { Money.new(10, 'EUR') }
+    let(:five_point_five_euro) { Money.new(5.5, '€') }
+
     it 'shows amount attribute of object' do
-      expect(Money.new(10, 'EUR').amount).to eq(10)
-      expect(Money.new(5.5, 'EUR').amount).to eq(5.5)
+      expect(ten_euro.amount).to eq(10)
+      expect(five_point_five_euro.amount).to eq(5.5)
     end
   end
 
   describe 'currency' do
+    let(:ten_euro) { Money.new(10, 'EUR') }
+    let(:five_point_five_euro) { Money.new(5.5, '€') }
+
     it 'shows currency attribute of object' do
-      expect(Money.new(10, 'EUR').currency).to eq('EUR')
-      expect(Money.new(5.5, '€').currency).to eq('€')
+      expect(ten_euro.currency).to eq('EUR')
+      expect(five_point_five_euro.currency).to eq('€')
     end
   end
 
@@ -47,7 +50,6 @@ describe MoneyMoney do
       let(:five_dollars) { Money.new(5, 'USD') }
 
       before do
-
         Money.conversion_rates('EUR', {'USD' => 1.1, 'CLP' => 500})
       end
 
@@ -122,100 +124,107 @@ describe MoneyMoney do
   end
 
   describe '+' do
-    it 'adds two money objects of same currency' do
-      m = Money.new(10, 'EUR')
-      n = Money.new(20, 'EUR')
-      res = m + n
+    context 'same currencies' do
+      let(:ten_euro) { Money.new(10, 'EUR') }
+      let(:twenty_euro) { Money.new(20, 'EUR') }
 
-      expect(res.amount).to eq(30)
-      expect(res.currency).to eq('EUR')
-      expect(res.inspect).to eq('30.00 EUR')
+      it 'adds two money objects of same currency' do
+        res = ten_euro + twenty_euro
+
+        expect(res.amount).to eq(30)
+        expect(res.currency).to eq('EUR')
+        expect(res.inspect).to eq('30.00 EUR')
+      end
+
+      it 'returns money object' do
+        expect(ten_euro + twenty_euro).to be_a(Money)
+      end
     end
 
-    it 'returns money object' do
-      m = Money.new(10, 'EUR')
-      n = Money.new(20, 'EUR')
-      res = m + n
+    context 'different currencies' do
+      context 'rates defined' do
+        let(:ten_euro) { Money.new(10, 'EUR') }
+        let(:twenty_dollar) { Money.new(20, 'USD') }
 
-      expect(res).to be_a(Money)
+        before do
+          Money.conversion_rates('EUR', {'USD' => 1.1})
+        end
+
+        it 'adds money objects of different currencies' do
+          res = ten_euro + twenty_dollar
+
+          expect(res.amount.round(2)).to eq(28.18)
+          expect(res.currency).to eq('EUR')
+          expect(res.inspect).to eq('28.18 EUR')
+        end
+      end
+
+      context 'rates not defined' do
+        let(:eighty_dollars) { Money.new(80, 'USD') }
+        let(:sixty_yuan) { Money.new(60, 'CNY') }
+
+        it 'throws error when trying to add' do
+          expect{ eighty_dollars + sixty_yuan }.to raise_error('Currently there is no value for requested currency')
+        end
+      end
     end
 
     it 'shows error when not adding money object' do
       expect{ Money.new(100, 'EUR') + 'error generator' }
         .to raise_error(TypeError, 'the object to operate with is not a Money object. E.g. money_1 + money_2')
     end
-
-    context 'rates defined' do
-      before do
-        Money.conversion_rates('EUR', {'USD' => 1.1})
-      end
-
-      it 'adds money objects of different currencies' do
-        m = Money.new(10, 'EUR')
-        n = Money.new(20, 'USD')
-        res = m + n
-
-        expect(res.amount.round(2)).to eq(28.18)
-        expect(res.currency).to eq('EUR')
-        expect(res.inspect).to eq('28.18 EUR')
-      end
-    end
-
-    context 'rates not defined' do
-      it 'throws error when trying to add' do
-        m = Money.new(80, 'USD')
-        n = Money.new(60, 'CNY')
-        expect{ m + n }.to raise_error('Currently there is no value for requested currency')
-      end
-    end
   end
 
   describe '-' do
-    it 'substracts two money objects of same currency' do
-      m = Money.new(80, 'USD')
-      n = Money.new(60, 'USD')
-      res = m - n
 
-      expect(res.amount).to eq(20)
-      expect(res.currency).to eq('USD')
-      expect(res.inspect).to eq('20.00 USD')
+    context 'same currencies' do
+      let(:eighty_dollars) { Money.new(80, 'USD') }
+      let(:sixty_dollars) { Money.new(60, 'USD') }
+
+      it 'substracts two money objects' do
+        res = eighty_dollars - sixty_dollars
+
+        expect(res.amount).to eq(20)
+        expect(res.currency).to eq('USD')
+        expect(res.inspect).to eq('20.00 USD')
+      end
+
+      it 'returns money object' do
+        expect(eighty_dollars - sixty_dollars).to be_a(Money)
+      end
     end
 
-    it 'returns money object' do
-      m = Money.new(80, 'USD')
-      n = Money.new(60, 'USD')
-      res = m - n
+    context 'different currencies' do
+      context 'rates defined' do
+        let(:fifty_euro) { Money.new(50, 'EUR') }
+        let(:twenty_dollar) { Money.new(20, 'USD') }
 
-      expect(res).to be_a(Money)
+        before do
+          Money.conversion_rates('EUR', {'USD' => 1.1})
+        end
+
+        it 'substracts money objects' do
+          res = fifty_euro - twenty_dollar
+
+          expect(res.amount.round(2)).to eq(31.82)
+          expect(res.currency).to eq('EUR')
+          expect(res.inspect).to eq('31.82 EUR')
+        end
+      end
+
+      context 'rates not defined' do
+        let(:eighty_dollars) { Money.new(80, 'USD') }
+        let(:sixty_yuan) { Money.new(60, 'CNY') }
+
+        it 'throws error when performing operation' do
+          expect{ eighty_dollars - sixty_yuan }.to raise_error('Currently there is no value for requested currency')
+        end
+      end
     end
 
     it 'shows error when not substracting money object' do
-      expect{ Money.new(100, 'EUR') - 'error generator' }
+      expect{  Money.new(80, 'ESP') - 'error generator' }
         .to raise_error(TypeError, 'the object to operate with is not a Money object. E.g. money_1 - money_2')
-    end
-
-    context 'rates defined' do
-      before do
-        Money.conversion_rates('EUR', {'USD' => 1.1})
-      end
-
-      it 'substracts money objects of different currencies' do
-        m = Money.new(50, 'EUR')
-        n = Money.new(20, 'USD')
-        res = m - n
-
-        expect(res.amount.round(2)).to eq(31.82)
-        expect(res.currency).to eq('EUR')
-        expect(res.inspect).to eq('31.82 EUR')
-      end
-    end
-
-    context 'rates not defined' do
-      it 'throws error when performing operation' do
-        m = Money.new(80, 'USD')
-        n = Money.new(60, 'CNY')
-        expect{ m - n }.to raise_error('Currently there is no value for requested currency')
-      end
     end
   end
 
