@@ -17,9 +17,11 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
+Or install it yourself from the gem directory:
 
-    $ gem install money_money
+    $ rake install
+
+In the future it might be uploaded to Rubygems repository.
 
 ## Usage
 
