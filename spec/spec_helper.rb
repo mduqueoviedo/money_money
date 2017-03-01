@@ -5,4 +5,7 @@ RSpec.configure do |config|
   config.append_after(:each) do
     Money.clean_conversion_rates
   end
+
+  # Random specs mean no order dependencies
+  config.order = "random"
 end

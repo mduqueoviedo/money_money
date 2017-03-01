@@ -411,17 +411,16 @@ describe MoneyMoney do
   describe 'self.clean_conversion_rates' do
     it 'removes existing conversion rates' do
       expect { Money.new(10, 'EUR') + Money.new(10, 'USD') }
-        .to raise_error('Currently there is no value for requested currency')
+        .to raise_error(RuntimeError, 'Currently there is no value for requested currency')
 
       Money.conversion_rates('EUR', {'USD' => 1.1})
 
-      expect { Money.new(10, 'EUR') + Money.new(10, 'USD') }
-        .not_to raise_error('Currently there is no value for requested currency')
+      expect(Money.new(10, 'EUR') + Money.new(10, 'USD')).to be_a(Money) # Not to raise error
 
       Money.clean_conversion_rates
 
       expect { Money.new(10, 'EUR') + Money.new(10, 'USD') }
-        .to raise_error('Currently there is no value for requested currency')
+        .to raise_error(RuntimeError, 'Currently there is no value for requested currency')
     end
   end
 end
