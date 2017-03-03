@@ -308,17 +308,6 @@ describe MoneyMoney do
           expect(ten_euro == eleven_and_a_bit_dollars).to be true
         end
       end
-
-      context 'rates not defined' do
-        it 'throws error when performing operation' do
-          expect{ ten_euro == Money.new(5, 'MXP') }.to raise_error('Currently there is no value for requested currency')
-        end
-      end
-    end
-
-    it 'throws error when not comparing to a money object' do
-      expect{ Money.new(5, 'PES') == 'error generator' }
-        .to raise_error(TypeError, 'the object to compare with is not a Money object. E.g. money_1 == money_2')
     end
   end
 
@@ -358,11 +347,6 @@ describe MoneyMoney do
         end
       end
     end
-
-    it 'throws error when not comparing to a money object' do
-      expect{ Money.new(5, 'GBP') > 'error generator' }
-        .to raise_error(TypeError, 'the object to compare with is not a Money object. E.g. money_1 > money_2')
-    end
   end
 
   describe '<' do
@@ -400,11 +384,6 @@ describe MoneyMoney do
           expect{ thirty_euro < Money.new(5, 'MXP') }.to raise_error('Currently there is no value for requested currency')
         end
       end
-    end
-
-    it 'throws error when not comparing to a money object' do
-      expect{ Money.new(5, 'DM') < 'error generator' }
-        .to raise_error(TypeError, 'the object to compare with is not a Money object. E.g. money_1 < money_2')
     end
   end
 
