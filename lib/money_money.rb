@@ -3,7 +3,7 @@ require "money_money/operations"
 require "money_money/comparators"
 
 class Money
-  @@conversion_table = {}
+  @conversion_table = {}
 
   attr_reader :amount, :currency
 
@@ -18,7 +18,7 @@ class Money
   def self.conversion_rates(base_currency, rates)
     raise TypeError, 'You must pass a hash as a set of rates for specified currency.' unless rates.is_a?(Hash)
 
-    @@conversion_table[base_currency] = @@conversion_table[base_currency] ? @@conversion_table[base_currency].merge(rates) : rates
+    @conversion_table[base_currency] = @conversion_table[base_currency] ? @conversion_table[base_currency].merge(rates) : rates
   end
 
   def convert_to(dest_currency)
@@ -33,7 +33,7 @@ class Money
   end
 
   def self.has_rate?(orig_currency, dest_currency)
-    conv_table = @@conversion_table # For clearer code
+    conv_table = @conversion_table # For clearer code
 
     if orig_currency == dest_currency
       true
@@ -48,7 +48,7 @@ class Money
   end
 
   def self.get_rate(orig_currency, dest_currency)
-    conv_table = @@conversion_table
+    conv_table = @conversion_table
     if orig_currency == dest_currency
       1
     elsif conv_table[orig_currency] && conv_table[orig_currency][dest_currency]
@@ -68,10 +68,10 @@ class Money
   end
 
   def self.defined_currency?(currency)
-    @@conversion_table.has_key?(currency) || @@conversion_table.find{ |_, hash| hash[currency] }
+    @conversion_table.has_key?(currency) || @conversion_table.find{ |_, hash| hash[currency] }
   end
 
   def self.clean_conversion_rates
-    @@conversion_table = {}
+    @conversion_table = {}
   end
 end
