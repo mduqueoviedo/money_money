@@ -1,6 +1,6 @@
-require "money_money/version"
-require "money_money/operations"
-require "money_money/comparators"
+require 'money_money/version'
+require 'money_money/operations'
+require 'money_money/comparators'
 
 class Money
   @conversion_table = {}
@@ -22,17 +22,17 @@ class Money
   end
 
   def convert_to(dest_currency)
-    raise 'Currently there is no value for requested currency' unless self.class.has_rate?(self.currency, dest_currency)
+    raise 'Currently there is no value for requested currency' unless self.class.rate?(currency, dest_currency)
 
-    conv_rate = self.class.get_rate(self.currency, dest_currency)
-    Money.new(self.amount * conv_rate, dest_currency)
+    conv_rate = self.class.get_rate(currency, dest_currency)
+    Money.new(amount * conv_rate, dest_currency)
   end
 
   def inspect
-    "#{"%.2f" % amount} #{currency}"
+    "#{'%.2f' % amount} #{currency}"
   end
 
-  def self.has_rate?(orig_currency, dest_currency)
+  def self.rate?(orig_currency, dest_currency)
     conv_table = @conversion_table # For clearer code
 
     if orig_currency == dest_currency
@@ -40,7 +40,7 @@ class Money
     elsif (conv_table[orig_currency] && conv_table[orig_currency][dest_currency]) ||
           (conv_table [dest_currency] && conv_table[dest_currency][orig_currency])
       true # One of them is a base currency
-    elsif conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.count > 0
+    elsif conv_table.select { |_, hash| hash[orig_currency] && hash[dest_currency] }.count > 0
       true # None of them are base but are defined on the same base
     else
       false
@@ -53,10 +53,10 @@ class Money
       1
     elsif conv_table[orig_currency] && conv_table[orig_currency][dest_currency]
       conv_table[orig_currency][dest_currency]
-    elsif conv_table [dest_currency] && conv_table[dest_currency][orig_currency]
+    elsif conv_table[dest_currency] && conv_table[dest_currency][orig_currency]
       1 / conv_table[dest_currency][orig_currency]
-    elsif conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.count > 0
-      found_rates_hash = conv_table.select{|_, hash| hash[orig_currency] && hash[dest_currency]}.first[1]
+    elsif conv_table.select { |_, hash| hash[orig_currency] && hash[dest_currency] }.count > 0
+      found_rates_hash = conv_table.select { |_, hash| hash[orig_currency] && hash[dest_currency] }.first[1]
 
       orig_rate = found_rates_hash[orig_currency]
       dest_rate = found_rates_hash[dest_currency]
@@ -68,7 +68,7 @@ class Money
   end
 
   def self.defined_currency?(currency)
-    @conversion_table.has_key?(currency) || @conversion_table.find{ |_, hash| hash[currency] }
+    @conversion_table.key?(currency) || @conversion_table.find { |_, hash| hash[currency] }
   end
 
   def self.clean_conversion_rates

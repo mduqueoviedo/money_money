@@ -1,8 +1,11 @@
-module MoneyMoney::Comparators
-  include Comparable
+module MoneyMoney
+  module Comparators
+    include Comparable
 
-  def <=>(obj)
-    return nil unless obj.is_a?(Money)
-    self.amount.round(2) <=> obj.convert_to(self.currency).amount.round(2)
+    def <=>(other)
+      return nil unless other.is_a?(Money)
+
+      self.amount.round(2) <=> other.convert_to(currency).amount.round(2)
+    end
   end
 end

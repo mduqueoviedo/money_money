@@ -7,5 +7,5 @@ RSpec.configure do |config|
   end
 
   # Random specs mean no order dependencies
-  config.order = "random"
+  config.order = 'random'
 end
