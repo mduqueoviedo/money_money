@@ -1,14 +1,14 @@
 require "money_money/version"
-require "money_money/comparators"
 require "money_money/operations"
+require "money_money/comparators"
 
 class Money
   @@conversion_table = {}
 
   attr_reader :amount, :currency
 
-  include MoneyMoney::Comparators
   include MoneyMoney::Operations
+  include MoneyMoney::Comparators
 
   def initialize(amount, currency)
     @amount = amount
