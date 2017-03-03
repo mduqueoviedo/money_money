@@ -157,14 +157,20 @@ describe MoneyMoney do
         let(:sixty_yuan) { Money.new(60, 'CNY') }
 
         it 'throws error when trying to add' do
-          expect { eighty_dollars + sixty_yuan }.to raise_error('Currently there is no value for requested currency')
+          expect { eighty_dollars + sixty_yuan }
+            .to raise_error(
+              'Currently there is no value for requested currency'
+            )
         end
       end
     end
 
     it 'shows error when not adding money object' do
       expect { Money.new(100, 'EUR') + 'error generator' }
-        .to raise_error(TypeError, 'the object to operate with is not a Money object. E.g. money_1 + money_2')
+        .to raise_error(
+          TypeError,
+          'the object to operate with is not a Money object. E.g. money_1 + money_2'
+        )
     end
   end
 
